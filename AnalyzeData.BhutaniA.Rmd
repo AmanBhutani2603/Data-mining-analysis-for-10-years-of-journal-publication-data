@@ -1,0 +1,41 @@
+```{r}
+#FINAL SUBMISSION
+library(RMySQL)
+
+db_user <- "root"
+db_password <- "55199@Khoury123!!"
+db_name <- "warehouse"
+db_host <- "localhost"
+db_port <- 3306
+
+dbconSQL <-  dbConnect(MySQL(), user = db_user, password = db_password,
+                       dbname = db_name, host = db_host, port = db_port)
+```
+
+##Top ten authors with the most publications.
+
+<!-- Here, information about the top 10 Author's ID and Name is being provided along with the Number of articles published by them.  
+
+Since, many rows in the Author table had NA values for Lastname and Initials a where clause is added to make sure no misleading data is 
+
+generated from the below query as not adding the where clause would result in the maximum number of publications from the author with initials and
+
+lastname as NA whereas in reality it is the summation of various authors whose data is just not available -->
+
+
+```{sql connection=dbconSQL}
+SELECT Auth_Id, Lastname, Initials, No_of_Articles  FROM Author_Fact WHERE NOT (Lastname = "NA" AND Initials = "NA") ORDER BY No_of_Articles DESC LIMIT 10;
+```
+
+<!-- Below query is just for demonstration purposes wherein the Journal fact information can be verified by the equality of the summation of the  total number of articles published by an author across all years to total articles across all months, and to total articles across all quarters.-->
+
+```{sql connection=dbconSQL}
+SELECT * FROM Journal_fact LIMIT 10;
+```
+
+## Top journal with the most articles per year.
+
+```{sql connection=dbconSQL}
+SELECT Jour_Id, Jour_Name FROM Journal_Fact WHERE Art_Cnt_1975 = (SELECT MAX(Art_Cnt_1975) FROM Journal_Fact) OR Art_Cnt_1976 = (SELECT MAX(Art_Cnt_1976) FROM Journal_Fact) OR Art_Cnt_1977 = (SELECT MAX(Art_Cnt_1977) FROM Journal_Fact) OR Art_Cnt_1978 = (SELECT MAX(Art_Cnt_1978) FROM Journal_Fact) OR Art_Cnt_1979 = (SELECT MAX(Art_Cnt_1979) FROM Journal_Fact);
+```
+
